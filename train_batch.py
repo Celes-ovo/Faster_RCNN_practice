@@ -35,28 +35,6 @@ learning_rate = 1e-4
 checkpoint = 500
 finetune = 0
 
-opts, args = getopt.getopt(sys.argv[1:], "-b:-f:-l:-e:-c:-n:", )
-
-for opt, arg in opts:
-    if opt == '-b':
-        batch_size = int(arg)
-    elif opt == '-f':
-        finetune = int(arg)
-    elif opt == '-l':
-        learning_rate = float(arg)
-    elif opt == '-e':
-        epochs = int(arg)
-    elif opt == '-c':
-        checkpoint = int(arg)
-    elif opt == '-n':
-        if int(arg) == 0:
-            img_mean = (0., 0., 0.)
-            img_std = (1., 1., 1.)
-        elif int(arg) == 1:
-            # Company Articles Dataset
-            img_mean = (0.9684, 0.9683, 0.9683)
-            img_std = (0.1502, 0.1505, 0.1505)
-
 train_dataset = coco.CocoDataSet(dataset_dir='./val2014', subset='train', annotation_dir= './annotations/sampled_ann_train.json',
                                  flip_ratio=flip_ratio, pad_mode='fixed',
                                  mean=img_mean, std=img_std,
