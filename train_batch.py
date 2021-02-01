@@ -15,7 +15,7 @@ from pycocotool.cocoeval import COCOeval
 # 1: all log info / 3: error log info only
 # display warning and error log info
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
-os.environ['CUDA_VISIBLE_DEVICES'] = '0'
+os.environ['CUDA_VISIBLE_DEVICES'] = '-1'
 
 assert tf.__version__.startswith('2.')
 
@@ -28,18 +28,17 @@ np.random.seed(22)
 img_mean = (123.675, 116.28, 103.53)
 img_std = (58.395, 57.12, 57.375)
 
-epochs = 10
+epochs = 5
 batch_size = 2
 flip_ratio = 0
 learning_rate = 1e-4
-checkpoint = 500
-finetune = 0
+finetune = False
 
 train_dataset = coco.CocoDataSet(dataset_dir='./val2014', subset='train', annotation_dir= './annotations/sampled_ann_train.json',
                                  flip_ratio=flip_ratio, pad_mode='fixed',
                                  mean=img_mean, std=img_std,
                                  scale=(800, 1216))
-test_dataset = coco.CocoDataSet(dataset_dir='./val2014', subset='val', annotation_dir=  './annotations/sampled_ann_test.json',
+test_dataset = coco.CocoDataSet(dataset_dir='./val2014', subset='val', annotation_dir= './annotations/sampled_ann_test.json',
                                 flip_ratio=flip_ratio, pad_mode='non-fixed',
                                 mean=img_mean, std=img_std,
                                 scale=(800, 1216))
@@ -47,7 +46,7 @@ test_dataset = coco.CocoDataSet(dataset_dir='./val2014', subset='val', annotatio
 train_generator = data_generator.DataGenerator(train_dataset)
 train_tf_dataset = tf.data.Dataset.from_generator(
     train_generator, (tf.float32, tf.float32, tf.float32, tf.int32))
-train_tf_dataset = train_tf_dataset.batch(batch_size).prefetch(100)#.shuffle(100)
+train_tf_dataset = train_tf_dataset.batch(batch_size).prefetch(50)
 
 num_classes = len(train_dataset.get_categories())
 model = faster_rcnn.FasterRCNN(num_classes=num_classes)
@@ -61,15 +60,13 @@ for epoch in range(1, epochs, 1):
         batch_imgs, batch_metas, batch_bboxes, batch_labels = inputs
 
         with tf.GradientTape() as tape:
-            rpn_class_loss, rpn_bbox_loss, rcnn_class_loss, rcnn_bbox_loss = \
-                model((batch_imgs, batch_metas, batch_bboxes, batch_labels))
+            rpn_class_loss, rpn_bbox_loss, rcnn_class_loss, rcnn_bbox_loss = model((batch_imgs, batch_metas, batch_bboxes, batch_labels))
 
             loss_value = rpn_class_loss + rpn_bbox_loss + rcnn_class_loss + rcnn_bbox_loss
 
         grads = tape.gradient(loss_value, model.trainable_variables)
         optimizer.apply_gradients(zip(grads, model.trainable_variables))
 
-        # if batch % 10 == 0 and not batch == 0:
         print('Epoch:', epoch, 'Batch:', batch, 'Loss:', loss_value.numpy(),
               'RPN Class Loss:', rpn_class_loss.numpy(),
               'RPN Bbox Loss:', rpn_bbox_loss.numpy(),
@@ -90,9 +87,6 @@ for epoch in range(1, epochs, 1):
 
                 proposals = model.simple_test_rpn(img, img_meta)
                 res = model.simple_test_bboxes(img, img_meta, proposals)
-
-                # visualize.display_instances(ori_img, res['rois'], res['class_ids'],
-                #                             test_dataset.get_categories(), scores=res['scores'])
 
                 image_id = test_dataset.img_ids[idx]
                 imgIds.append(image_id)
