@@ -15,7 +15,7 @@ from pycocotool.cocoeval import COCOeval
 # 1: all log info / 3: error log info only
 # display warning and error log info
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
-os.environ['CUDA_VISIBLE_DEVICES'] = '-1'
+os.environ['CUDA_VISIBLE_DEVICES'] = '0'
 
 assert tf.__version__.startswith('2.')
 

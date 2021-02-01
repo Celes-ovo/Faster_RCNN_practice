@@ -9,7 +9,7 @@ print(tf.__version__)
 
 # tensorflow config - using one gpu and extending the GPU 
 # memory region needed by the TensorFlow process
-os.environ['CUDA_VISIBLE_DEVICES'] = '-1'
+os.environ['CUDA_VISIBLE_DEVICES'] = '0'
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
 
 # load dataset
