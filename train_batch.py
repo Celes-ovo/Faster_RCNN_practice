@@ -79,41 +79,41 @@ for epoch in range(1, epochs, 1):
             dataset_results = []
             imgIds = []
 
-            for idx in range(len(test_dataset)):
-                if idx % 10 == 9 or idx + 1 == len(test_dataset):
-                    print(str(idx + 1) + ' / ' + str(len(test_dataset)))
-
-                img, img_meta, _, _ = test_dataset[idx]
-
-                proposals = model.simple_test_rpn(img, img_meta)
-                res = model.simple_test_bboxes(img, img_meta, proposals)
-
-                image_id = test_dataset.img_ids[idx]
-                imgIds.append(image_id)
-
-                for pos in range(res['class_ids'].shape[0]):
-                    results = dict()
-                    results['score'] = float(res['scores'][pos])
-                    results['category_id'] = test_dataset.label2cat[int(res['class_ids'][pos])]
-                    y1, x1, y2, x2 = [float(num) for num in list(res['rois'][pos])]
-                    results['bbox'] = [x1, y1, x2 - x1 + 1, y2 - y1 + 1]
-                    results['image_id'] = image_id
-                    dataset_results.append(results)
-
-            if not dataset_results == []:
-                with open('result/epoch_' + str(epoch) + '_batch_' + str(batch) + '.json', 'w') as f:
-                    f.write(json.dumps(dataset_results))
-
-                coco_dt = test_dataset.coco.loadRes(
-                    'result/epoch_' + str(epoch) + '_batch_' + str(batch) + '.json')
-                cocoEval = COCOeval(test_dataset.coco, coco_dt, 'bbox')
-                cocoEval.params.imgIds = imgIds
-
-                cocoEval.evaluate()
-                cocoEval.accumulate()
-                cocoEval.summarize()
-
-                with open('result/evaluation.txt', 'a+') as f:
-                    content = 'Epoch: ' + str(epoch) + 'Batch: ' + str(batch) \
-                              + '\n' + str(cocoEval.stats) + '\n'
-                    f.write(content)
+            # for idx in range(len(test_dataset)):
+            #     if idx % 10 == 9 or idx + 1 == len(test_dataset):
+            #         print(str(idx + 1) + ' / ' + str(len(test_dataset)))
+            #
+            #     img, img_meta, _, _ = test_dataset[idx]
+            #
+            #     proposals = model.simple_test_rpn(img, img_meta)
+            #     res = model.simple_test_bboxes(img, img_meta, proposals)
+            #
+            #     image_id = test_dataset.img_ids[idx]
+            #     imgIds.append(image_id)
+            #
+            #     for pos in range(res['class_ids'].shape[0]):
+            #         results = dict()
+            #         results['score'] = float(res['scores'][pos])
+            #         results['category_id'] = test_dataset.label2cat[int(res['class_ids'][pos])]
+            #         y1, x1, y2, x2 = [float(num) for num in list(res['rois'][pos])]
+            #         results['bbox'] = [x1, y1, x2 - x1 + 1, y2 - y1 + 1]
+            #         results['image_id'] = image_id
+            #         dataset_results.append(results)
+            #
+            # if not dataset_results == []:
+            #     with open('result/epoch_' + str(epoch) + '_batch_' + str(batch) + '.json', 'w') as f:
+            #         f.write(json.dumps(dataset_results))
+            #
+            #     coco_dt = test_dataset.coco.loadRes(
+            #         'result/epoch_' + str(epoch) + '_batch_' + str(batch) + '.json')
+            #     cocoEval = COCOeval(test_dataset.coco, coco_dt, 'bbox')
+            #     cocoEval.params.imgIds = imgIds
+            #
+            #     cocoEval.evaluate()
+            #     cocoEval.accumulate()
+            #     cocoEval.summarize()
+            #
+            #     with open('result/evaluation.txt', 'a+') as f:
+            #         content = 'Epoch: ' + str(epoch) + 'Batch: ' + str(batch) \
+            #                   + '\n' + str(cocoEval.stats) + '\n'
+            #         f.write(content)

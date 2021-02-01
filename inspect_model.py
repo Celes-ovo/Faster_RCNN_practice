@@ -63,7 +63,7 @@ batch_labels = tf.Variable(np.expand_dims(labels, 0))
 
 _ = model((batch_imgs, batch_metas, batch_bboxes, batch_labels), training=True)
 
-model.load_weights('weights/faster_rcnn.h5')
+model.load_weights('model/faster_rcnn.h5')
 
 # ### Stage 1: Region Proposal Network
 # 
